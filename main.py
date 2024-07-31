@@ -1,11 +1,11 @@
 import argparse
-from utils import *
-from cost_computation import AD, SD, SAD, SSD
+from utils import ImageLoader
+from cost_computation import AD, SD, SAD, SSD, ASW
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', default='tsukuba', help='data name')
-parser.add_argument('--costmethod', default='SAD', help='cost computation method')
+parser.add_argument('--costmethod', default='ASW', help='cost computation method')
 
 args = parser.parse_args()
 
@@ -25,6 +25,8 @@ def main():
         SAD(left_image, right_image, depth, 3)
     if args.costmethod == 'SSD':    
         SSD(left_image, right_image, depth, 3)
+    if args.costmethod == 'ASW':    
+        ASW(left_image, right_image, depth, 5)
 
 if __name__ == "__main__":
     main()

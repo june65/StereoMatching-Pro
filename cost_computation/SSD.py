@@ -1,14 +1,11 @@
 import numpy as np
 import cv2
-
-def convert_to_grayscale(image):
-    if len(image.shape) == 3:
-        return np.dot(image[...,:3], [0.2989, 0.5870, 0.1140])
+from utils import RGB_to_gray
 
 def SSD(left_image, right_image, depth, kernel_size=3):
 
-    left_image = convert_to_grayscale(left_image)
-    right_image = convert_to_grayscale(right_image)
+    left_image = RGB_to_gray(left_image)
+    right_image = RGB_to_gray(right_image)
 
     left_CV, right_CV =  cost_volume(left_image, right_image, depth, kernel_size)
     return disparity_map(left_CV, right_CV, depth, kernel_size)
