@@ -26,7 +26,7 @@ def main():
     if args.costmethod == 'SSD':    
         SSD(left_image, right_image, depth, 3)
     if args.costmethod == 'ASW':    
-        ASW(left_image, right_image, depth, 5)
+        ASW(left_image, right_image, depth, 33)
 
 if __name__ == "__main__":
     main()

@@ -1,22 +1,14 @@
 import numpy as np
 import cv2
 from utils import RGB_to_gray, RGB_to_CIELab
-
-def weight(image, X1, Y1, X2, Y2):
-    k = 1
-    r_c = 7
-    r_p = 36
-    del_c = np.sqrt(np.sum(np.square(image[X1,Y1,:] - image[X2,Y2,:])))
-    del_g = np.sqrt((X1-X2)**2 + (Y1-Y2)**2)
-    return k * np.exp(-(del_c / r_c + del_g / r_p))
+from tqdm import tqdm
 
 def ASW(left_image, right_image, depth, kernel_size=3):
 
-    left_image_CIELab = RGB_to_CIELab(left_image)
-    right_image_CIELab = RGB_to_CIELab(right_image)
-    left_image = RGB_to_gray(left_image)
+    left_image_CIELab = RGB_to_CIELab(left_image) 
+    right_image_CIELab = RGB_to_CIELab(right_image)  
+    left_image = RGB_to_gray(left_image) 
     right_image = RGB_to_gray(right_image)
-
     left_CV, right_CV =  cost_volume(left_image, right_image, depth, kernel_size)
     return disparity_map(left_CV, right_CV, left_image_CIELab, right_image_CIELab, depth, kernel_size)
 
@@ -32,7 +24,6 @@ def cost_volume(left_image, right_image, depth, kernel_size):
             if w+d < width:
                 left_costvolume[:,w,d] = np.abs(left_image[:,w] - right_image[:,w+d])
                 right_costvolume[:,w,d] = np.abs(left_image[:,w-d] - right_image[:,w])
-    
 
     return left_costvolume, right_costvolume
 
@@ -48,34 +39,32 @@ def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_im
     padded_left_image= np.pad(left_image_CIELab, pad_width, mode='constant')
     padded_right_image = np.pad(right_image_CIELab, pad_width, mode='constant')
 
-    left_disparity_conv = np.zeros((height, width, depth))
-    right_disparity_conv = np.zeros((height, width, depth))
+    left_disparity_conv = np.full((height, width, depth), np.inf)
+    right_disparity_conv =  np.full((height, width, depth) ,np.inf)
 
     weight_g_kernel = np.zeros((kernel_size, kernel_size)) 
     for i in range(kernel_size):
         for j in range(kernel_size):
             distance = np.sqrt((i - pad_size)**2 + (j - pad_size)**2)
             weight_g_kernel[i, j] = distance
-
+    
     r_c = 7
     r_p = 36 
 
-    for h in range(height):
+    for h in tqdm(range(height)):
         for w in range(width):
             for d in range(depth):
                 if w+d < width:
-                    weight_C_left = np.sqrt(np.sum(np.square(padded_left_image[h:h+kernel_size, w:w+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_left_image[h+pad_size, w+pad_size, :]))))
-                    weight_C_right_d = np.sqrt(np.sum(np.square(padded_right_image[h:h+kernel_size, w+d:w+d+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_right_image[h+pad_size, w+d+pad_size, :]))))   
-                    weight = np.exp(-((weight_C_left + weight_C_right_d) / r_c + weight_g_kernel * 2 / r_p))
-                    weight_total = np.sum(weight)
-                    weight /= weight_total
+                    weight_C_left = np.sqrt(np.sum(np.square(padded_left_image[h:h+kernel_size, w:w+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_left_image[h+pad_size, w+pad_size, :])),axis=2))
+                    weight_C_right_d = np.sqrt(np.sum(np.square(padded_right_image[h:h+kernel_size, w+d:w+d+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_right_image[h+pad_size, w+d+pad_size, :])),axis=2))   
+                    weight = np.exp(-(((weight_C_left + weight_C_right_d) / r_c) + ((weight_g_kernel * 2) / r_p)))
+                    weight /= np.sum(weight)
                     left_disparity_conv[h, w, d] = np.sum(padded_left_disparity[h:h+kernel_size, w:w+kernel_size, d] * weight)
                 if w-d >= 0:
-                    weight_C_left_d = np.sqrt(np.sum(np.square(padded_left_image[h:h+kernel_size, w-d:w-d+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_left_image[h+pad_size, w-d+pad_size, :]))))
-                    weight_C_right = np.sqrt(np.sum(np.square(padded_right_image[h:h+kernel_size, w:w+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_right_image[h+pad_size, w+pad_size, :]))))   
-                    weight = np.exp(-((weight_C_left_d + weight_C_right) / r_c + weight_g_kernel * 2 / r_p))
-                    weight_total = np.sum(weight)
-                    weight /= weight_total
+                    weight_C_left_d = np.sqrt(np.sum(np.square(padded_left_image[h:h+kernel_size, w-d:w-d+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_left_image[h+pad_size, w-d+pad_size, :])),axis=2))
+                    weight_C_right = np.sqrt(np.sum(np.square(padded_right_image[h:h+kernel_size, w:w+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_right_image[h+pad_size, w+pad_size, :])),axis=2))   
+                    weight = np.exp(-(((weight_C_left_d + weight_C_right) / r_c) + ((weight_g_kernel * 2) / r_p)))
+                    weight /= np.sum(weight)
                     right_disparity_conv[h, w, d] = np.sum(padded_right_disparity[h:h+kernel_size, w:w+kernel_size, d] * weight)
 
     left_disparity = np.argmin(left_disparity_conv, axis=2)
@@ -94,6 +83,15 @@ def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_im
 
 '''
 #VERSION2
+
+def weight(image, X1, Y1, X2, Y2):
+    k = 1
+    r_c = 7
+    r_p = 36
+    del_c = np.sqrt(np.sum(np.square(image[X1,Y1,:] - image[X2,Y2,:])))
+    del_g = np.sqrt((X1-X2)**2 + (Y1-Y2)**2)
+    return k * np.exp(-(del_c / r_c + del_g / r_p))
+
 def cost_volume(left_image, right_image, left_image_CIELab, right_image_CIELab, depth, kernel_size):
     
     height, width = left_image.shape
