@@ -29,12 +29,12 @@ def cost_volume(left_image, right_image, depth):
 
 def aggregate_cost_volume(left_costvolume, right_costvolume):
 
-    forward_pass = [(1, 0), (0, 1), (1, 1), (1, -1)]
-    backward_pass = [(-1, 0), (0, -1), (-1, -1), (-1, 1)]
+    forward_pass = [(1, 0), (0, 1), (1, 1), (1, -1), (0, 2), (0, 3), (1, 2), (1, -2)]
+    backward_pass = [(-1, 0), (0, -1), (-1, -1), (-1, 1), (0, -2), (0, -3), (-1, 2), (-1, -2)]
     p1 = 5
     p2 = 150
     height, width, depth = left_costvolume.shape 
-    aggregated_costs =np.zeros((height, width, depth, 8))
+    aggregated_costs =np.zeros((height, width, depth, 16))
 
     for index, (i, j) in tqdm(enumerate(forward_pass)):
         for h in range(height):
@@ -53,10 +53,10 @@ def aggregate_cost_volume(left_costvolume, right_costvolume):
                 for d in range(depth):
                     if (h-i>=0 and h-i<height and w-j>=0 and w-j<width):
                         disparity_value =  left_costvolume[h-i, w-j, d]
-                        L_value_1 = aggregated_costs[h-i, w-j,d-1,index+4] if d-1 >= 0 else np.inf
-                        L_value_2 = aggregated_costs[h-i, w-j,d+1,index+4] if d+1 < depth else np.inf    
-                        min_value1 = np.min(aggregated_costs[h-i, w-j,:,index+4])
-                        aggregated_costs[h,w,d,index+4] += disparity_value + min(aggregated_costs[h-i, w-j,d,index+4] , L_value_1 + p1 , L_value_2+ p1 , min_value1 + p2) - min_value1
+                        L_value_1 = aggregated_costs[h-i, w-j,d-1,index+8] if d-1 >= 0 else np.inf
+                        L_value_2 = aggregated_costs[h-i, w-j,d+1,index+8] if d+1 < depth else np.inf    
+                        min_value1 = np.min(aggregated_costs[h-i, w-j,:,index+8])
+                        aggregated_costs[h,w,d,index+8] += disparity_value + min(aggregated_costs[h-i, w-j,d,index+4] , L_value_1 + p1 , L_value_2+ p1 , min_value1 + p2) - min_value1
 
     aggregated_volume = aggregated_costs.mean(axis=3)
         

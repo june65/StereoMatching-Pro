@@ -5,7 +5,7 @@ from cost_computation import AD, SD, SAD, SSD, ASW, SGM
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', default='tsukuba', help='data name')
-parser.add_argument('--costmethod', default='ASW', help='cost computation method')
+parser.add_argument('--costmethod', default='SGM', help='cost computation method')
 
 args = parser.parse_args()
 
@@ -26,7 +26,7 @@ def main():
     if args.costmethod == 'SSD':    
         SSD(left_image, right_image, depth, 3)
     if args.costmethod == 'ASW':    
-        ASW(left_image, right_image, depth, 33, speculer=False)
+        ASW(left_image, right_image, depth, 33, specular=False)
     if args.costmethod == 'SGM':    
         SGM(left_image, right_image, depth)
 
