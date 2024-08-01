@@ -3,3 +3,4 @@ from .SD import SD
 from .SAD import SAD
 from .SSD import SSD
 from .ASW import ASW
+from .SGM import SGM
