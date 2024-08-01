@@ -17,6 +17,7 @@ def cost_volume(left_image, right_image, depth):
         for w in range(width):
             if w+d < width:
                 left_costvolume[:,w,:,d] = abs(left_image[:,w,:] - right_image[:,w+d,:])
+            if w-d >=0:
                 right_costvolume[:,w,:,d] = abs(left_image[:,w-d,:] - right_image[:,w,:])
         '''
         print_img = right_costvolume[:, :, :,d].astype(np.uint8)
