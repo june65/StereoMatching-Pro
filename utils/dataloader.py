@@ -10,6 +10,8 @@ class ImageLoader():
             if filename.lower().endswith(('.png', '.jpg', '.jpeg','ppm')):
                 img_path = os.path.join(datapath, filename)
                 img = cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB)
+                if img.shape[0]>1000:
+                    img = cv2.resize(img, dsize=(0, 0), fx=0.1, fy=0.1, interpolation=cv2.INTER_AREA)
                 self.images.append(img)
                 
 
