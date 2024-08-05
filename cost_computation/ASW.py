@@ -3,12 +3,12 @@ import cv2
 from utils import RGB_to_gray, RGB_to_CIELab
 from tqdm import tqdm
 
-def ASW(left_image, right_image, depth, kernel_size=3, speculer=False):
+def ASW(left_image, right_image, depth, kernel_size=3, specular=False):
 
     left_image_CIELab = RGB_to_CIELab(left_image) 
     right_image_CIELab = RGB_to_CIELab(right_image)  
-    left_CV, right_CV, left_speculer_mask, right_speculer_mask =  cost_volume(left_image, right_image, depth, kernel_size, speculer)
-    return disparity_map(left_CV, right_CV, left_image_CIELab, right_image_CIELab, depth, kernel_size, speculer, left_speculer_mask, right_speculer_mask)
+    left_CV, right_CV, left_specular_mask, right_specular_mask =  cost_volume(left_image, right_image, depth, kernel_size, specular)
+    return disparity_map(left_CV, right_CV, left_image_CIELab, right_image_CIELab, depth, kernel_size, specular, left_specular_mask, right_specular_mask)
 
 def chromaticity(image,x,y,direction):
     Lamd = (image[y,x,:] - image[y+direction[0],x+direction[1],:]).astype(np.float64)
@@ -18,46 +18,48 @@ def chromaticity(image,x,y,direction):
     return Lamd
 
 #VERSION1
-def cost_volume(left_image, right_image, depth, kernel_size, speculer=False):
+def cost_volume(left_image, right_image, depth, kernel_size, specular=False):
 
     height, width, _ = left_image.shape
-    left_speculer_mask = np.zeros((height, width, 1)).astype(np.float64)
-    right_speculer_mask = np.zeros((height, width, 1)).astype(np.float64)
+    left_specular_mask = np.zeros((height, width, 1)).astype(np.float64)
+    right_specular_mask = np.zeros((height, width, 1)).astype(np.float64)
 
-    if (speculer):
-        left_speculer_masks = np.zeros((height, width, 8)).astype(np.float64)
-        threshold = 5
+    if (specular):
+        left_specular_masks = np.zeros((height, width)).astype(np.float64)
+        threshold = 3
         directions = [(1, 0), (0, 1), (1, 1), (1, -1), (-1, 0), (0, -1), (-1, -1), (-1, 1)]
         for index, direction in enumerate(directions):
             for w in range(1,width-2):
                 for h in range(1,height-2):
                     epsilon = chromaticity(left_image,w,h,direction) - chromaticity(left_image,w+direction[0],h+direction[1],direction)
                     if np.abs(np.sum(epsilon)) > threshold:
-                        left_speculer_masks[h,w,index] = 1
+                        left_specular_masks[h,w] += 1
+                        left_specular_masks[h+direction[1],w+direction[0]] += 1
+                        left_specular_masks[h-direction[1],w-direction[0]] += 1
 
-        left_speculer_mask_sum = np.sum(left_speculer_masks,axis=2)
-        left_speculer_mask[left_speculer_mask_sum >= 4] = 1
+        left_specular_mask[left_specular_masks >= 12] = 1
         
-        right_speculer_masks = np.zeros((height, width, 8)).astype(np.float64)
+        right_specular_masks = np.zeros((height, width)).astype(np.float64)
         for index, direction in enumerate(directions):
             for w in range(1,width-2):
                 for h in range(1,height-2):
-                    epsilon = chromaticity(left_image,w,h,direction) - chromaticity(left_image,w+direction[0],h+direction[1],direction)
+                    epsilon = chromaticity(right_image,w,h,direction) - chromaticity(right_image,w+direction[0],h+direction[1],direction)
                     if np.abs(np.sum(epsilon)) > threshold:
-                        right_speculer_masks[h,w,index] = 1
+                        right_specular_masks[h,w] += 1
+                        right_specular_masks[h+direction[1],w+direction[0]] += 1
+                        right_specular_masks[h-direction[1],w-direction[0]] += 1
 
-        right_speculer_mask_sum = np.sum(right_speculer_masks,axis=2)
-        right_speculer_mask[right_speculer_mask_sum >= 4] = 1
-        '''
-        print_img = speculer_mask_sum.astype(np.uint8) * int(255/8)
-        cv2.imshow('speculer_mask_sum',print_img)
+        right_specular_mask[right_specular_masks >= 12] = 1
+        
+        print_img = right_specular_masks.astype(np.uint8) * int(255/24)
+        cv2.imshow('specular_mask_sum',print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        print_img = speculer_mask.astype(np.uint8) * int(255)
-        cv2.imshow('speculer_mask',print_img)
+        print_img = right_specular_mask.astype(np.uint8) * int(255)
+        cv2.imshow('specular_mask',print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        '''
+        
     left_image = RGB_to_gray(left_image) 
     right_image = RGB_to_gray(right_image)
     
@@ -71,10 +73,10 @@ def cost_volume(left_image, right_image, depth, kernel_size, speculer=False):
             if w-d >=0:
                 right_costvolume[:,w,d] = np.abs(left_image[:,w-d] - right_image[:,w])
 
-    return left_costvolume, right_costvolume, left_speculer_mask, right_speculer_mask
+    return left_costvolume, right_costvolume, left_specular_mask, right_specular_mask
 
 
-def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_image_CIELab, depth, kernel_size, speculer=False, left_speculer_mask=None, right_speculer_mask=None):
+def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_image_CIELab, depth, kernel_size, specular=False, left_specular_mask=None, right_specular_mask=None):
 
     height, width, _ = left_image_CIELab.shape
     pad_size = kernel_size // 2
@@ -98,7 +100,7 @@ def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_im
     r_c = 7
     r_p = 36 
 
-    if (speculer):
+    if (specular):
         r_s = 36 
 
     for h in tqdm(range(height)):
@@ -107,8 +109,8 @@ def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_im
                 if w+d < width:
                     weight_C_left = np.sqrt(np.sum(np.square(padded_left_image[h:h+kernel_size, w:w+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_left_image[h+pad_size, w+pad_size, :])),axis=2))
                     weight_C_right_d = np.sqrt(np.sum(np.square(padded_right_image[h:h+kernel_size, w+d:w+d+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_right_image[h+pad_size, w+d+pad_size, :])),axis=2)) 
-                    if (speculer):
-                        weight_S = left_speculer_mask[h,w] + left_speculer_mask[h,w+d] 
+                    if (specular):
+                        weight_S = left_specular_mask[h,w] + right_specular_mask[h,w+d] 
                         weight = np.exp(-(((weight_C_left + weight_C_right_d) / r_c) + ((weight_g_kernel * 2) / r_p) + (weight_S / r_s)))
 
                     else:
@@ -118,8 +120,8 @@ def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_im
                 if w-d >= 0:
                     weight_C_left_d = np.sqrt(np.sum(np.square(padded_left_image[h:h+kernel_size, w-d:w-d+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_left_image[h+pad_size, w-d+pad_size, :])),axis=2))
                     weight_C_right = np.sqrt(np.sum(np.square(padded_right_image[h:h+kernel_size, w:w+kernel_size, :] - np.full((kernel_size, kernel_size, 3), padded_right_image[h+pad_size, w+pad_size, :])),axis=2))   
-                    if (speculer):
-                        weight_S = right_speculer_mask[h,w] + right_speculer_mask[h,w-d] 
+                    if (specular):
+                        weight_S = right_specular_mask[h,w] + left_specular_mask[h,w-d] 
                         weight = np.exp(-(((weight_C_left + weight_C_right_d) / r_c) + ((weight_g_kernel * 2) / r_p) + (weight_S / r_s)))
                     else:
                         weight = np.exp(-(((weight_C_left_d + weight_C_right) / r_c) + ((weight_g_kernel * 2) / r_p)))
