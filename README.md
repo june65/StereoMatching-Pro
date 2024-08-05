@@ -87,6 +87,16 @@ python main.py --costmethod SGM
     <img src="assets/SGM_aggregated_volume.png" alt="Image 1" style="height: 200px;"/>
 </div>
 
+### Left Right Consistency Check
+```bash
+python main.py --costmethod SAD --lrcheck True
+```
+
+<div style="display: flex; justify-content: center;">
+    <img src="assets/LR_check_SAD_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
+</div>
+
+
 ## **Reference**
 [Stereo Matching With Fusing Adaptive Support Weights](https://ieeexplore.ieee.org/document/8712528)
 
