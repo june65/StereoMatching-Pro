@@ -1,13 +1,14 @@
 import argparse
 from utils import ImageLoader
 from cost_computation import AD, SD, SAD, SSD, ASW, SGM
-from post_processing import LR_check
+from post_processing import LR_check, Mid_filter
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', default='tsukuba', help='data name')
-parser.add_argument('--costmethod', default='SAD', help='cost computation method')
+parser.add_argument('--costmethod', default='ASW', help='cost computation method')
 parser.add_argument('--lrcheck', default=False, help='left right consistency check')
+parser.add_argument('--midfilter', default=False, help='weighted median filter')
 
 args = parser.parse_args()
 
@@ -35,6 +36,8 @@ def main():
     #Post Processing
     if args.lrcheck:
         LR_check(left_disparity, right_disparity, depth)
+    if args.midfilter:
+        Mid_filter(left_disparity, left_image, depth, 3)
 
 if __name__ == "__main__":
     main()

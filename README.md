@@ -96,6 +96,14 @@ python main.py --costmethod SAD --lrcheck True
     <img src="assets/LR_check_SAD_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
 </div>
 
+### Weighted Median Filter
+```bash
+python main.py --costmethod ASW --midfilter True
+```
+
+<div style="display: flex; justify-content: center;">
+    <img src="assets/Mid_filter_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
+</div>
 
 ## **Reference**
 [Stereo Matching With Fusing Adaptive Support Weights](https://ieeexplore.ieee.org/document/8712528)
