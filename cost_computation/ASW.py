@@ -140,7 +140,7 @@ def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_im
     cv2.waitKey(0)
     cv2.destroyAllWindows()    
 
-    return left_disparity, right_disparity
+    return left_disparity, right_disparity, left_disparity_conv
 
 '''
 #VERSION2

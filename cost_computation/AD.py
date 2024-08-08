@@ -36,7 +36,7 @@ def disparity_map(left_costvolume, right_costvolume, depth):
     
     left_disparity = np.argmin(left_costvolume, axis=2)
     right_disparity = np.argmin(right_costvolume, axis=2)
-
+    '''
     print_img = left_disparity.astype(np.uint8) * int(255 / depth)
     cv2.imshow('right_disparity_map',print_img)
     cv2.waitKey(0)
@@ -45,5 +45,5 @@ def disparity_map(left_costvolume, right_costvolume, depth):
     cv2.imshow('left_disparity_map',print_img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()    
-    
-    return left_disparity, right_disparity
+    '''
+    return left_disparity, right_disparity, left_costvolume
