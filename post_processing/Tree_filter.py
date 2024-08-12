@@ -85,7 +85,7 @@ def child_cost_agg(MST, width, children, child, target):
                 X2 = child_i // width
                 Y2 = child_i % width
                 total_cost += child_cost_agg(MST, width, children, children[child_i], child_i) * simularity(X1, Y1, X2, Y2)
-            standard_costvolume[target // width, target % width] += total_cost
+            standard_costvolume[target // width, target % width] = total_cost
             memo[target] = standard_costvolume[target // width, target % width]
 
     return memo[target]
@@ -102,8 +102,8 @@ def result_cost_agg(MST, width, parent, children, target):
         if target_p == -1:
             memo_result[target] = child_cost_agg(MST, width, children, children[target], target)
         else:
-            cost_1 = simularity(X1, Y1, X_p, Y_p) * result_cost_agg(MST, width, parent, children, target_p)
-            cost_2 = (1 - simularity(X_p, Y_p, X1, Y1)**2) * child_cost_agg(MST, width, children, children[target], target)
+            cost_1 = simularity(X_p, Y_p, X1, Y1) * result_cost_agg(MST, width, parent, children, target_p)
+            cost_2 = (1 - simularity(X1, Y1, X_p, Y_p)**2) * child_cost_agg(MST, width, children, children[target], target)
             memo_result[target] = cost_1 + cost_2
 
     return memo_result[target]
@@ -122,28 +122,30 @@ def Tree_filter(image, disparity, costvolume, depth, kernel_size):
         MST = construct_MST(image, height, width-d-pad_size)
         parent, children = relation_MST(MST, height*(width-d-pad_size))
         standard_costvolume = costvolume[:,:,d]
-        '''
+        
         print_img = costvolume[:, :, d].astype(np.uint8)
         cv2.imshow('{right_costvolume depth}:'+ str(d), print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        '''
+        
         memo = {}
         memo_result = {}
         for w in range(width-d-pad_size):
             for h in range(height):
                 target = w + h*(width-d-pad_size)
                 result_disparity[h, w, d] = result_cost_agg(MST, (width-d-pad_size), parent, children, target)
-        '''
+                
+        
         print_img = result_disparity[:, :, d].astype(np.uint8)
         cv2.imshow('{right_costvolume depth}:'+ str(d), print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        '''
+        
     result_disparity_argmin = np.argmin(result_disparity, axis=2)
+    
     print_img = result_disparity_argmin.astype(np.uint8) * int(255 / depth)
     cv2.imshow('standard_costvolume',print_img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()    
 
-    return result_disparity
+    return result_disparity_argmin

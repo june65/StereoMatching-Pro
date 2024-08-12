@@ -41,7 +41,7 @@ def main():
     if args.lrcheck:
         LR_check(left_disparity, right_disparity, depth)
     if args.treefilter:
-        Tree_filter(left_image, left_disparity, left_costvolume, depth, window_size)
+       left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, depth, window_size)
     if mid_window_size > 0:
         Mid_filter(left_disparity, left_image, depth, mid_window_size)
 

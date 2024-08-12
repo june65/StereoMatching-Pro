@@ -96,6 +96,15 @@ python main.py --costmethod SAD --costwindow 3 --lrcheck True
     <img src="assets/LR_check_SAD_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
 </div>
 
+### Tree Filtering
+```bash
+python main.py --costmethod ASW --costwindow 33 --treefilter True
+```
+
+<div style="display: flex; justify-content: center;">
+    <img src="assets/Tree_filter_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
+</div>
+
 ### Weighted Median Filter
 ```bash
 python main.py --costmethod ASW --costwindow 33 --midfilter 5
