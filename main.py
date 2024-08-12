@@ -7,10 +7,10 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--dataset', default='tsukuba', help='data name')
 parser.add_argument('--costmethod', default='ASW', help='cost computation method')
-parser.add_argument('--costwindow', default=3, help='kernel size')
+parser.add_argument('--costwindow', default=33, help='kernel size')
 parser.add_argument('--lrcheck', default=False, help='left right consistency check')
-parser.add_argument('--treefilter', default=True, help='tree filter')
-parser.add_argument('--midfilter', default=False, help='weighted median filter')
+parser.add_argument('--treefilter', default=False, help='tree filter')
+parser.add_argument('--midfilter', default=0, help='weighted median filter')
 
 args = parser.parse_args()
 
@@ -19,7 +19,8 @@ datapath = "./data/" + args.dataset+ "/"
 def main():
     imageset = ImageLoader(datapath)
     depth = 16
-    window_size = args.costwindow
+    window_size = int(args.costwindow)
+    mid_window_size = int(args.midfilter)
     right_image = imageset[0]
     left_image = imageset[1]
     
@@ -41,8 +42,8 @@ def main():
         LR_check(left_disparity, right_disparity, depth)
     if args.treefilter:
         Tree_filter(left_image, left_disparity, left_costvolume, depth, window_size)
-    if args.midfilter:
-        Mid_filter(left_disparity, left_image, depth, 3)
+    if mid_window_size > 0:
+        Mid_filter(left_disparity, left_image, depth, mid_window_size)
 
 if __name__ == "__main__":
     main()

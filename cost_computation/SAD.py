@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from utils import RGB_to_gray
+from tqdm import tqdm
 
 def SAD(left_image, right_image, depth, kernel_size=3):
 
@@ -41,7 +42,7 @@ def disparity_map(left_costvolume, right_costvolume, depth, kernel_size):
 
     kernel = np.ones((kernel_size, kernel_size)) / kernel_size**2
 
-    for h in range(height):
+    for h in tqdm(range(height)):
         for w in range(width):
             for n in range(depth):
                 left_disparity_conv[h, w, n] = np.sum(padded_left_disparity[h:h+kernel_size, w:w+kernel_size, n] * kernel)

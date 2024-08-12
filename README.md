@@ -50,7 +50,7 @@ python main.py --costmethod SD
 
 ### Sum of absolute differences
 ```bash
-python main.py --costmethod SAD
+python main.py --costmethod SAD --costwindow 3
 ```
 
 <div style="display: flex; justify-content: center;">
@@ -60,7 +60,7 @@ python main.py --costmethod SAD
 
 ### Sum of squared differences
 ```bash
-python main.py --costmethod SSD
+python main.py --costmethod SSD --costwindow 3
 ```
 
 <div style="display: flex; justify-content: center;">
@@ -70,7 +70,7 @@ python main.py --costmethod SSD
 
 ### Adaptive Support Weights
 ```bash
-python main.py --costmethod ASW
+python main.py --costmethod ASW --costwindow 33
 ```
 
 <div style="display: flex; justify-content: center;">
@@ -89,7 +89,7 @@ python main.py --costmethod SGM
 
 ### Left Right Consistency Check
 ```bash
-python main.py --costmethod SAD --lrcheck True
+python main.py --costmethod SAD --costwindow 3 --lrcheck True
 ```
 
 <div style="display: flex; justify-content: center;">
@@ -98,7 +98,7 @@ python main.py --costmethod SAD --lrcheck True
 
 ### Weighted Median Filter
 ```bash
-python main.py --costmethod ASW --midfilter True
+python main.py --costmethod ASW --costwindow 33 --midfilter 5
 ```
 
 <div style="display: flex; justify-content: center;">
