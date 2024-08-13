@@ -26,7 +26,9 @@ datapath = "./data/" + args.dataset+ "/"
 def main():
     #Data loading
     imageset = ImageLoader(datapath)
-    depth = 16
+    min_depth = 5
+    max_depth = 14
+    crop_depth = 17
     window_size = int(args.costwindow)
     mid_window_size = int(args.midfilter)
     right_image, GT_image = imageset[0]
@@ -34,31 +36,31 @@ def main():
 
     #Cost computation
     if args.costmethod == 'AD':
-        left_disparity, right_disparity, left_costvolume = AD(left_image, right_image, depth)
+        left_disparity, right_disparity, left_costvolume = AD(left_image, right_image, min_depth, max_depth)
     if args.costmethod == 'SD':
-        left_disparity, right_disparity = SD(left_image, right_image, depth)
+        left_disparity, right_disparity, left_costvolume = SD(left_image, right_image, min_depth, max_depth)
     if args.costmethod == 'SAD':    
-        left_disparity, right_disparity, left_costvolume = SAD(left_image, right_image, depth, window_size)
+        left_disparity, right_disparity, left_costvolume = SAD(left_image, right_image, min_depth, max_depth, window_size)
     if args.costmethod == 'SSD':    
-        left_disparity, right_disparity = SSD(left_image, right_image, depth, window_size)
+        left_disparity, right_disparity, left_costvolume = SSD(left_image, right_image, min_depth, max_depth, window_size)
     if args.costmethod == 'ASW':    
-        left_disparity, right_disparity, left_costvolume = ASW(left_image, right_image, depth, window_size, specular=False)
+        left_disparity, right_disparity, left_costvolume = ASW(left_image, right_image, min_depth, max_depth, window_size, specular=False)
     if args.costmethod == 'SGM':    
-        left_disparity, right_disparity = SGM(left_image, right_image, depth)
+        left_disparity, right_disparity = SGM(left_image, right_image, max_depth)
 
     #Post processing
     if args.lrcheck:
-        left_disparity = LR_check(left_disparity, right_disparity, depth)
+        left_disparity = LR_check(left_disparity, right_disparity, max_depth)
     if args.treefilter:
-        left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, depth, window_size, texture=True, LR_refine=args.lrcheck)
+        left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, min_depth, max_depth, window_size, texture=True, LR_refine=args.lrcheck)
     if mid_window_size > 0:
-        left_disparity = Mid_filter(left_disparity, left_image, depth, mid_window_size)
+        left_disparity = Mid_filter(left_disparity, left_image, min_depth, max_depth, mid_window_size)
 
     #Accuracy calculation
     if args.rmse:
-        RMSE(GT_image, left_disparity, depth)
+        RMSE(GT_image, left_disparity, crop_depth)
     if args.badratio:
-        Bad_ratio(GT_image, left_disparity, depth, 0.1)    
+        Bad_ratio(GT_image, left_disparity, crop_depth, 1)    
 
 if __name__ == "__main__":
     main()

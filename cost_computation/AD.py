@@ -1,19 +1,19 @@
 import numpy as np
 import cv2
 
-def AD(left_image, right_image, depth):
+def AD(left_image, right_image, min_depth, max_depth):
 
-    left_CV, right_CV =  cost_volume(left_image, right_image, depth)
-    return disparity_map(left_CV, right_CV, depth)
+    left_CV, right_CV =  cost_volume(left_image, right_image, min_depth, max_depth)
+    return disparity_map(left_CV, right_CV, min_depth, max_depth)
 
 
-def cost_volume(left_image, right_image, depth):
+def cost_volume(left_image, right_image, min_depth, max_depth):
 
     height, width, _ = left_image.shape
-    left_costvolume = np.full((height, width, 3 ,depth), np.inf)
-    right_costvolume = np.full((height, width, 3 ,depth) ,np.inf)
+    left_costvolume = np.full((height, width, 3, max_depth), np.inf)
+    right_costvolume = np.full((height, width, 3, max_depth) ,np.inf)
 
-    for d in range(depth):
+    for d in range(min_depth, max_depth):
         for w in range(width):
             if w+d < width:
                 left_costvolume[:,w,:,d] = abs(left_image[:,w,:] - right_image[:,w+d,:])
@@ -32,7 +32,7 @@ def cost_volume(left_image, right_image, depth):
     return left_costvolume, right_costvolume
 
 
-def disparity_map(left_costvolume, right_costvolume, depth):
+def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth):
     
     left_disparity = np.argmin(left_costvolume, axis=2)
     right_disparity = np.argmin(right_costvolume, axis=2)
