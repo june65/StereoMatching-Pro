@@ -29,9 +29,10 @@ Middlebury Computer Vision Pages provide datasets and benchmarks for computer vi
 ## **Running**
 ### Absolute intensity difference
 ```bash
-python main.py --costmethod AD
+python main.py --costmethod AD --rgbexpand True
 ```
-
+![RMSE](https://img.shields.io/badge/RMSE-3.472-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.393-red)
 <div style="display: flex; justify-content: center;">
     <img src="assets/AD_left_disparity.png" alt="Image 1" style="height: 200px;"/>
     <img src="assets/AD_right_disparity.png" alt="Image 2" style="height: 200px;"/>
@@ -39,14 +40,14 @@ python main.py --costmethod AD
 
 ### Squared intensity difference
 ```bash
-python main.py --costmethod SD
+python main.py --costmethod SD --rgbexpand True
 ```
-
+![RMSE](https://img.shields.io/badge/RMSE-3.174-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.381-red)
 <div style="display: flex; justify-content: center;">
     <img src="assets/SD_left_disparity.png" alt="Image 1" style="height: 200px;"/>
     <img src="assets/SD_right_disparity.png" alt="Image 2" style="height: 200px;"/>
 </div>
-
 
 ### Sum of absolute differences
 ```bash

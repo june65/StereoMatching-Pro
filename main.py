@@ -1,6 +1,6 @@
 import argparse
 from utils import ImageLoader
-from cost_computation import AD, SD, SAD, SSD, ASW, SGM
+from cost_computation import AD, SD, SAD, SSD, ASW, SGM, AD_rgb, SD_rgb
 from post_processing import LR_check, Mid_filter, Tree_filter
 from accuracy_calculation import RMSE, Bad_ratio
 
@@ -11,6 +11,7 @@ parser.add_argument('--dataset', default='tsukuba', help='data name')
 #Cost computation parameters
 parser.add_argument('--costmethod', default='AD', help='cost computation method')
 parser.add_argument('--costwindow', default=33, help='kernel size')
+parser.add_argument('--rgbexpand', default=False, help='rgb expansion')
 #Post processing parameters
 parser.add_argument('--lrcheck', default=False, help='left right consistency check')
 parser.add_argument('--treefilter', default=False, help='tree filter')
@@ -36,9 +37,15 @@ def main():
 
     #Cost computation
     if args.costmethod == 'AD':
-        left_disparity, right_disparity, left_costvolume = AD(left_image, right_image, min_depth, max_depth)
+        if not args.rgbexpand:
+            left_disparity, right_disparity, left_costvolume = AD(left_image, right_image, min_depth, max_depth)
+        else:
+            left_disparity, right_disparity, left_costvolume = AD_rgb(left_image, right_image, min_depth, max_depth)
     if args.costmethod == 'SD':
-        left_disparity, right_disparity, left_costvolume = SD(left_image, right_image, min_depth, max_depth)
+        if not args.rgbexpand:
+            left_disparity, right_disparity, left_costvolume = SD(left_image, right_image, min_depth, max_depth)
+        else:
+            left_disparity, right_disparity, left_costvolume = SD_rgb(left_image, right_image, min_depth, max_depth)
     if args.costmethod == 'SAD':    
         left_disparity, right_disparity, left_costvolume = SAD(left_image, right_image, min_depth, max_depth, window_size)
     if args.costmethod == 'SSD':    
