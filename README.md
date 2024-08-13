@@ -98,11 +98,11 @@ python main.py --costmethod SAD --costwindow 3 --lrcheck True
 
 ### Tree Filtering
 ```bash
-python main.py --costmethod ASW --costwindow 33 --treefilter True
+python main.py --costmethod ASW --costwindow 33 --treefilter True --lrcheck True
 ```
 
 <div style="display: flex; justify-content: center;">
-    <img src="assets/Tree_filter_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
+    <img src="assets/Tree_filter_LR_check_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
 </div>
 
 ### Weighted Median Filter
@@ -112,6 +112,16 @@ python main.py --costmethod ASW --costwindow 33 --midfilter 5
 
 <div style="display: flex; justify-content: center;">
     <img src="assets/Mid_filter_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
+</div>
+
+### Best Result
+ASW + Left Right Consistency Check + Tree Filtering + Weighted Median Filter
+```bash
+python main.py --costmethod ASW --costwindow 33 --lrcheck True --treefilter True --midfilter 5 
+```
+
+<div style="display: flex; justify-content: center;">
+    <img src="assets/Mid_filter_Tree_filter_LR_check_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
 </div>
 
 ## **Reference**

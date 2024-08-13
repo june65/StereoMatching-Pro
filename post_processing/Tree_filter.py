@@ -128,7 +128,7 @@ def mst_filter(image, height, width, parent, iter=1):
         filtered_image = new_filtered_image
     return filtered_image
 
-def Tree_filter(image, disparity, costvolume, depth, kernel_size, texture):
+def Tree_filter(image, disparity, costvolume, depth, kernel_size, texture, LR_refine):
     pad_size = kernel_size // 2
     image = RGB_to_gray(image)
     height, width = image.shape
@@ -143,6 +143,22 @@ def Tree_filter(image, disparity, costvolume, depth, kernel_size, texture):
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         '''
+
+    if LR_refine:
+        for d in range(depth):
+            for w in range(width-d-pad_size):
+                for h in range(height):
+                    if disparity[h,w] > 0:
+                        costvolume[h,w,d] = np.abs(d - disparity[h,w])
+                    else:
+                     costvolume[h,w,d] = 0
+            '''
+            print_img = costvolume[:, :, d].astype(np.uint8)
+            cv2.imshow('{right_costvolume depth}:'+ str(d), print_img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            '''
+
     global standard_costvolume
     global memo
     global memo_result 

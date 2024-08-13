@@ -39,9 +39,9 @@ def main():
 
     #Post Processing
     if args.lrcheck:
-        LR_check(left_disparity, right_disparity, depth)
+        left_disparity = LR_check(left_disparity, right_disparity, depth)
     if args.treefilter:
-       left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, depth, window_size, texture=True)
+        left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, depth, window_size, texture=True, LR_refine=args.lrcheck)
     if mid_window_size > 0:
         Mid_filter(left_disparity, left_image, depth, mid_window_size)
 
