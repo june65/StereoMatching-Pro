@@ -100,8 +100,8 @@ python main.py --costmethod SAD --costwindow 3 --lrcheck True
 ```bash
 python main.py --costmethod ASW --costwindow 33 --treefilter True --lrcheck True
 ```
-![RMSE](https://img.shields.io/badge/RMSE-2.085-brightgreen)
-![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.159-red)
+![RMSE](https://img.shields.io/badge/RMSE-2.083-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.107-red)
 
 <div style="display: flex; justify-content: center;">
     <img src="assets/Tree_filter_LR_check_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
@@ -111,8 +111,8 @@ python main.py --costmethod ASW --costwindow 33 --treefilter True --lrcheck True
 ```bash
 python main.py --costmethod ASW --costwindow 33 --midfilter 5
 ```
-![RMSE](https://img.shields.io/badge/RMSE-2.039-brightgreen)
-![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.156-red)
+![RMSE](https://img.shields.io/badge/RMSE-2.023-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.106-red)
 
 <div style="display: flex; justify-content: center;">
     <img src="assets/Mid_filter_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
@@ -123,8 +123,8 @@ ASW + Left Right Consistency Check + Tree Filtering + Weighted Median Filter
 ```bash
 python main.py --costmethod ASW --costwindow 33 --lrcheck True --treefilter True --midfilter 5 
 ```
-![RMSE](https://img.shields.io/badge/RMSE-2.038-brightgreen)
-![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.152-red)
+![RMSE](https://img.shields.io/badge/RMSE-2.039-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.102-red)
 <div style="display: flex; justify-content: center;">
     <img src="assets/Mid_filter_Tree_filter_LR_check_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
 </div>

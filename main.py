@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 #Data parameters
 parser.add_argument('--dataset', default='tsukuba', help='data name')
 #Cost computation parameters
-parser.add_argument('--costmethod', default='ASW', help='cost computation method')
+parser.add_argument('--costmethod', default='AD', help='cost computation method')
 parser.add_argument('--costwindow', default=33, help='kernel size')
 #Post processing parameters
 parser.add_argument('--lrcheck', default=False, help='left right consistency check')
@@ -27,7 +27,7 @@ def main():
     #Data loading
     imageset = ImageLoader(datapath)
     min_depth = 5
-    max_depth = 14
+    max_depth = 15
     crop_depth = 17
     window_size = int(args.costwindow)
     mid_window_size = int(args.midfilter)
