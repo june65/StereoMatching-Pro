@@ -5,8 +5,8 @@ def Bad_ratio(GT_image, test_image, depth, threshold):
         raise ValueError("Different Size")
     
     height, width = GT_image.shape
-    crop_GT_image = GT_image[depth:height-depth,depth:width-depth]
-    crop_test_image = test_image[depth:height-depth,depth:width-depth]* int(255 / depth)
+    crop_GT_image = GT_image[depth:height-depth,depth:width-depth] * float(depth / 255)
+    crop_test_image = test_image[depth:height-depth,depth:width-depth]
     
     difference = np.abs(crop_GT_image - crop_test_image)
     bad_pixels = difference > threshold
