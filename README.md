@@ -53,20 +53,38 @@ python main.py --costmethod SD --rgbexpand True
 ```bash
 python main.py --costmethod SAD --costwindow 3
 ```
-
 <div style="display: flex; justify-content: center;">
     <img src="assets/SAD_left_disparity.png" alt="Image 1" style="height: 200px;"/>
     <img src="assets/SAD_right_disparity.png" alt="Image 2" style="height: 200px;"/>
+</div>
+
+```bash
+python test.py --costmethod SAD --costwindow 33
+```
+![RMSE](https://img.shields.io/badge/RMSE-1.975-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.115-red)
+
+<div style="display: flex; justify-content: center;">
+    <img src="assets/SAD_accuracy_window_size.png" alt="Image 1" style="height: 300px;"/>
 </div>
 
 ### Sum of squared differences
 ```bash
 python main.py --costmethod SSD --costwindow 3
 ```
-
 <div style="display: flex; justify-content: center;">
     <img src="assets/SSD_left_disparity.png" alt="Image 1" style="height: 200px;"/>
     <img src="assets/SSD_right_disparity.png" alt="Image 2" style="height: 200px;"/>
+</div>
+
+```bash
+python test.py --costmethod SSD --costwindow 33
+```
+![RMSE](https://img.shields.io/badge/RMSE-1.958-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.125-red)
+
+<div style="display: flex; justify-content: center;">
+    <img src="assets/SSD_accuracy_window_size.png" alt="Image 1" style="height: 300px;"/>
 </div>
 
 ### Adaptive Support Weights

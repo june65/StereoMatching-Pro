@@ -50,7 +50,7 @@ def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, spec
                         right_specular_masks[h-direction[1],w-direction[0]] += 1
 
         right_specular_mask[right_specular_masks >= 12] = 1
-        
+        '''
         print_img = right_specular_masks.astype(np.uint8) * int(255/24)
         cv2.imshow('specular_mask_sum',print_img)
         cv2.waitKey(0)
@@ -59,7 +59,7 @@ def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, spec
         cv2.imshow('specular_mask',print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        
+        '''
     left_image = RGB_to_gray(left_image) 
     right_image = RGB_to_gray(right_image)
     
