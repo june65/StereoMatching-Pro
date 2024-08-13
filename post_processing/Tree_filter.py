@@ -35,25 +35,31 @@ def prim(n, edges):
 
 #####BASELINE#####
 
-def create_graph(image, height, width):
+def create_graph(image, height, width, texture):
     edges = []
     flag = 0.00001
     for h in range(height):
         for w in range(width):
             if h < height - 1:
-                weight = (image[h, w] - image[h+1, w])**2
+                if not texture:
+                    weight = (image[h, w] - image[h+1, w])**2
+                else:
+                    weight = 1
                 if weight == 0:
                     weight = flag
                 edges.append((h * width + w, (h + 1) * width + w, weight))
             if w < width - 1:
-                weight = (image[h, w] - image[h, w+1])**2
+                if not texture:
+                    weight = (image[h, w] - image[h, w+1])**2
+                else:
+                    weight = 1
                 if weight == 0:
                     weight = flag
                 edges.append((h * width + w, h * width + (w + 1), weight))
     return edges, height * width
 
-def construct_MST(image, height, width):
-    edges, num_pixels = create_graph(image, height, width)
+def construct_MST(image, height, width, texture):
+    edges, num_pixels = create_graph(image, height, width, texture)
     MST = prim(num_pixels, edges)
     return MST
 
@@ -108,41 +114,65 @@ def result_cost_agg(MST, width, parent, children, target):
 
     return memo_result[target]
 
-def Tree_filter(image, disparity, costvolume, depth, kernel_size):
+def mst_filter(image, height, width, parent, iter=1):
+    num_nodes = height * width
+    sigma = 0.1
+    filtered_image = image
+    for _ in range(iter):
+        new_filtered_image = filtered_image
+        for i in range(1, num_nodes):
+            child_pixel = filtered_image[i // width, i % width]
+            parent_pixel = filtered_image[parent[i] // width, parent[i] % width]
+            weight = np.exp(-abs(child_pixel - parent_pixel) / sigma)
+            new_filtered_image[i // width, i % width] = (1 - weight) * child_pixel + weight * parent_pixel
+        filtered_image = new_filtered_image
+    return filtered_image
+
+def Tree_filter(image, disparity, costvolume, depth, kernel_size, texture):
     pad_size = kernel_size // 2
     image = RGB_to_gray(image)
     height, width = image.shape
-    
+
+    if texture:
+        MST = construct_MST(image, height, width, True)
+        parent, children = relation_MST(MST, height*width)
+        image = mst_filter(image, height, width, parent, iter=1)
+        '''
+        print_img = image.astype(np.uint8)
+        cv2.imshow('{mst_filter image}:', print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        '''
     global standard_costvolume
-    global memo  
+    global memo
     global memo_result 
     result_disparity = np.full((height, width, depth), np.inf)
 
     for d in tqdm(range(depth)):
-        MST = construct_MST(image, height, width-d-pad_size)
+        MST = construct_MST(image, height, width-d-pad_size, False)
         parent, children = relation_MST(MST, height*(width-d-pad_size))
-        standard_costvolume = costvolume[:,:,d]
-        
-        print_img = costvolume[:, :, d].astype(np.uint8)
+        standard_costvolume = costvolume[:, :, d]
+        '''
+        print_img = standard_costvolume.astype(np.uint8)
         cv2.imshow('{right_costvolume depth}:'+ str(d), print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        
+        '''
         memo = {}
         memo_result = {}
         for w in range(width-d-pad_size):
             for h in range(height):
                 target = w + h*(width-d-pad_size)
                 result_disparity[h, w, d] = result_cost_agg(MST, (width-d-pad_size), parent, children, target)
-                
-        
+        '''
         print_img = result_disparity[:, :, d].astype(np.uint8)
         cv2.imshow('{right_costvolume depth}:'+ str(d), print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        
-    result_disparity_argmin = np.argmin(result_disparity, axis=2)
+        '''
     
+    result_disparity_argmin = np.argmin(result_disparity, axis=2)
+
     print_img = result_disparity_argmin.astype(np.uint8) * int(255 / depth)
     cv2.imshow('standard_costvolume',print_img)
     cv2.waitKey(0)

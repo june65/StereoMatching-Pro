@@ -119,8 +119,9 @@ python main.py --costmethod ASW --costwindow 33 --midfilter 5
 
 [Stereo Processing by Semi-Global Matching and Mutual Information](https://core.ac.uk/download/pdf/11134866.pdf)
 
+[Stereo Matching Using Tree Filtering](https://ieeexplore.ieee.org/abstract/document/6888475)
 
-
+[Constant Time Weighted Median Filtering for Stereo Matching](https://openaccess.thecvf.com/content_iccv_2013/papers/Ma_Constant_Time_Weighted_2013_ICCV_paper.pdf)
 
 
 
