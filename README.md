@@ -97,6 +97,16 @@ python main.py --costmethod ASW --costwindow 33
     <img src="assets/ASW_right_disparity_33.png" alt="Image 2" style="height: 200px;"/>
 </div>
 
+```bash
+python test.py --costmethod ASW --costwindow 51
+```
+![RMSE](https://img.shields.io/badge/RMSE-2.043-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.108-red)
+
+<div style="display: flex; justify-content: center;">
+    <img src="assets/AWS_accuracy_window_size.png" alt="Image 1" style="height: 300px;"/>
+</div>
+
 ### Semi-Global Matching
 ```bash
 python main.py --costmethod SGM
