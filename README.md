@@ -116,6 +116,16 @@ python main.py --costmethod SGM
     <img src="assets/SGM_aggregated_volume.png" alt="Image 1" style="height: 200px;"/>
 </div>
 
+### Graph Cut
+```bash
+python main.py --costmethod AD --graphcut 2
+```
+![RMSE](https://img.shields.io/badge/RMSE-2.370-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.153-red)
+<div style="display: flex; justify-content: center;">
+    <img src="assets/AD_Graph_cut_disparity.png" alt="Image 1" style="height: 200px;"/>
+</div>
+
 ### Left Right Consistency Check
 ```bash
 python main.py --costmethod SAD --costwindow 3 --lrcheck True
@@ -127,10 +137,10 @@ python main.py --costmethod SAD --costwindow 3 --lrcheck True
 
 ### Tree Filtering
 ```bash
-python main.py --costmethod ASW --costwindow 33 --treefilter True --lrcheck True
+python main.py --costmethod ASW --costwindow 27 --treefilter True --lrcheck True
 ```
-![RMSE](https://img.shields.io/badge/RMSE-2.083-brightgreen)
-![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.107-red)
+![RMSE](https://img.shields.io/badge/RMSE-2.073-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.102-red)
 
 <div style="display: flex; justify-content: center;">
     <img src="assets/Tree_filter_LR_check_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>

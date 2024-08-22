@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 from tqdm import tqdm
+
 def LR_check(left_disparity, right_disparity, max_depth):
     height, width = left_disparity.shape
     disparity_mask = np.zeros((height, width))
@@ -19,4 +20,4 @@ def LR_check(left_disparity, right_disparity, max_depth):
     cv2.waitKey(0)
     cv2.destroyAllWindows()    
 
-    return aggregated_disparity
+    return aggregated_disparity 
