@@ -150,6 +150,7 @@ python main.py --costmethod ASW --costwindow 27 --treefilter True --lrcheck True
 
 <div style="display: flex; justify-content: center;">
     <img src="assets/Tree_filter_LR_check_ASW_aggregated_disparity.png" alt="Image 1" style="height: 200px;"/>
+    <img src="assets/Tree_filter_MST.png" alt="Image 1" style="height: 200px;"/>
 </div>
 
 ### Weighted Median Filter

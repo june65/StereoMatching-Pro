@@ -3,6 +3,7 @@ import cv2
 from tqdm import tqdm
 from utils import RGB_to_gray
 import heapq
+import matplotlib.pyplot as plt
 
 import sys
 limit_number = 100000
@@ -33,6 +34,53 @@ def prim(n, edges):
                 parent[v] = u
     return mst
 
+def visualize_mst_pixels(height, width, mst):
+    img = np.ones((height, width)) * -1
+
+    current_value = 0
+    for u, v, weight in mst:
+        u_row, u_col = divmod(u, width)
+        v_row, v_col = divmod(v, width)
+        
+        if img[u_row, u_col] == -1:
+            img[u_row, u_col] = current_value
+            current_value += 1
+        
+        if img[v_row, v_col] == -1:
+            img[v_row, v_col] = current_value
+            current_value += 1
+    '''
+    plt.imshow(img, cmap='viridis', interpolation='nearest')
+    plt.colorbar(label="Order of pixel visitation")
+    plt.title("Minimum Spanning Tree Pixel Order")
+    plt.axis('off')
+    plt.show()
+    '''
+def visualize_mst_pixels2(height, width, mst):
+    img = np.ones((height, width)) * -1 
+    value_map = {}
+    current_value = 0
+    
+    for u, v, weight in mst:
+        if u not in value_map and v not in value_map:
+            value_map[u] = current_value
+            value_map[v] = current_value + 1
+            current_value += 2
+        elif u in value_map:
+            value_map[v] = value_map[u] + 1
+        else:
+            value_map[u] = value_map[v] + 1
+    
+    for key, value in value_map.items():
+        row, col = divmod(key, width)
+        img[row, col] = value
+    '''
+    plt.imshow(img, cmap='viridis', interpolation='nearest')
+    plt.colorbar(label="Pixel values")
+    plt.title("Minimum Spanning Tree with Connected Pixel Colors")
+    plt.axis('off')
+    plt.show()
+    '''
 #####BASELINE#####
 
 def create_graph(image, height, width, texture):
@@ -61,6 +109,8 @@ def create_graph(image, height, width, texture):
 def construct_MST(image, height, width, texture):
     edges, num_pixels = create_graph(image, height, width, texture)
     MST = prim(num_pixels, edges)
+    visualize_mst_pixels(height, width, MST)
+    visualize_mst_pixels2(height, width, MST)
     return MST
 
 def relation_MST(MST, num_pixels):
