@@ -27,6 +27,12 @@ Middlebury Computer Vision Pages provide datasets and benchmarks for computer vi
 
 
 ## **Running**
+
+### Ground Truth
+<div style="display: flex; justify-content: center;">
+    <img src="assets/Ground_Truth.png" alt="Image 1" style="height: 200px;"/>
+</div>
+
 ### Absolute intensity difference
 ```bash
 python main.py --costmethod AD --rgbexpand True
@@ -118,10 +124,10 @@ python main.py --costmethod SGM
 
 ### Graph Cut
 ```bash
-python main.py --costmethod AD --graphcut 2
+python main.py --costmethod AD --graphcut True
 ```
-![RMSE](https://img.shields.io/badge/RMSE-2.370-brightgreen)
-![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.153-red)
+![RMSE](https://img.shields.io/badge/RMSE-2.083-brightgreen)
+![Bad Ratio](https://img.shields.io/badge/Bad%20Ratio-0.135-red)
 <div style="display: flex; justify-content: center;">
     <img src="assets/AD_Graph_cut_disparity.png" alt="Image 1" style="height: 200px;"/>
 </div>
