@@ -20,6 +20,7 @@ parser.add_argument('--midfilter', default=0, help='weighted median filter')
 #Accuracy calculation parameters
 parser.add_argument('--rmse', default=True, help='rmse accuracy')
 parser.add_argument('--badratio', default=True, help='bad pixel ratio')
+parser.add_argument('--print', default=False, help='print disparity result')
 
 args = parser.parse_args()
 
@@ -43,18 +44,18 @@ def main():
     for window_size in window_size_list:
         #Cost computation
         if args.costmethod == 'SAD':    
-            left_disparity, right_disparity, left_costvolume = SAD(left_image, right_image, min_depth, max_depth, window_size)
+            left_disparity, right_disparity, left_costvolume = SAD(left_image, right_image, min_depth, max_depth, window_size, False)
         if args.costmethod == 'SSD':    
-            left_disparity, right_disparity, left_costvolume = SSD(left_image, right_image, min_depth, max_depth, window_size)
+            left_disparity, right_disparity, left_costvolume = SSD(left_image, right_image, min_depth, max_depth, window_size, False)
         if args.costmethod == 'ASW':    
-            left_disparity, right_disparity, left_costvolume = ASW(left_image, right_image, min_depth, max_depth, window_size, specular=False)
+            left_disparity, right_disparity, left_costvolume = ASW(left_image, right_image, min_depth, max_depth, window_size, False, False)
         #Post processing
         if args.lrcheck:
-            left_disparity = LR_check(left_disparity, right_disparity, max_depth)
+            left_disparity = LR_check(left_disparity, right_disparity, max_depth, False)
         if args.treefilter:
-            left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, min_depth, max_depth, window_size, texture=True, LR_refine=args.lrcheck)
+            left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, min_depth, max_depth, window_size, True, args.lrcheck, False)
         if mid_window_size > 0:
-            left_disparity = Mid_filter(left_disparity, left_image, min_depth, max_depth, mid_window_size)
+            left_disparity = Mid_filter(left_disparity, left_image, min_depth, max_depth, mid_window_size, False)
 
         #Accuracy calculation
         if args.rmse:

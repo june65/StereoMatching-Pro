@@ -3,13 +3,13 @@ import cv2
 from utils import RGB_to_gray
 from tqdm import tqdm
 
-def SAD(left_image, right_image, min_depth, max_depth, kernel_size=3):
+def SAD(left_image, right_image, min_depth, max_depth, kernel_size, disparity_print):
 
     left_image = RGB_to_gray(left_image)
     right_image = RGB_to_gray(right_image)
 
     left_CV, right_CV =  cost_volume(left_image, right_image, min_depth, max_depth, kernel_size)
-    return disparity_map(left_CV, right_CV, min_depth, max_depth, kernel_size)
+    return disparity_map(left_CV, right_CV, min_depth, max_depth, kernel_size, disparity_print)
 
 #VERSION1
 def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size):
@@ -28,7 +28,7 @@ def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size):
     return left_costvolume, right_costvolume
 
 
-def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, kernel_size):
+def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, kernel_size, disparity_print):
     
     pad_size = kernel_size // 2
     pad_width = ((pad_size, pad_size), (pad_size, pad_size), (0,0))
@@ -48,21 +48,19 @@ def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, kerne
                 left_disparity_conv[h, w, n] = np.sum(padded_left_disparity[h:h+kernel_size, w:w+kernel_size, n] * kernel)
                 right_disparity_conv[h, w, n] = np.sum(padded_right_disparity[h:h+kernel_size, w:w+kernel_size, n] * kernel)
 
-    # left_disparity_conv = left_disparity_conv.mean(axis=2)
-    # right_disparity_conv = right_disparity_conv.mean(axis=2)
-
     left_disparity = np.argmin(left_disparity_conv, axis=2)
     right_disparity = np.argmin(right_disparity_conv, axis=2)
-    '''
-    print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('right_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('left_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()    
-    '''
+
+    if disparity_print:
+        print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('left_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('right_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
     return left_disparity, right_disparity, left_disparity_conv
 
 '''
@@ -100,16 +98,23 @@ def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size):
                             kernel_num += 1
                     right_costvolume[h,w,d] = flag_sum / kernel_num
 
-    # left_costvolume = left_costvolume.mean(axis=2)
-    # right_costvolume = right_costvolume.mean(axis=2)
-
     return left_costvolume, right_costvolume
 
 
-def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, kernel_size):
+def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, kernel_size, disparity_print):
     
     left_disparity = np.argmin(left_costvolume, axis=2)
     right_disparity = np.argmin(right_costvolume, axis=2)
+
+    if disparity_print:
+        print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('left_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('right_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     return left_disparity, right_disparity
 '''

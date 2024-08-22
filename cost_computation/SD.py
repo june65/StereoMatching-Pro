@@ -2,13 +2,13 @@ import numpy as np
 import cv2
 from utils import RGB_to_gray
 
-def SD(left_image, right_image, min_depth, max_depth):
+def SD(left_image, right_image, min_depth, max_depth, disparity_print):
 
     left_image = RGB_to_gray(left_image)
     right_image = RGB_to_gray(right_image)
 
     left_CV, right_CV =  cost_volume(left_image, right_image, min_depth, max_depth)
-    return disparity_map(left_CV, right_CV, min_depth, max_depth)
+    return disparity_map(left_CV, right_CV, min_depth, max_depth, disparity_print)
 
 def cost_volume(left_image, right_image, min_depth, max_depth):
 
@@ -25,27 +25,28 @@ def cost_volume(left_image, right_image, min_depth, max_depth):
 
     return left_costvolume, right_costvolume
 
-def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth):
+def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, disparity_print):
     
     left_disparity = np.argmin(left_costvolume, axis=2)
     right_disparity = np.argmin(right_costvolume, axis=2)
-    '''
-    print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('right_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('left_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()    
-    '''
+
+    if disparity_print:
+        print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('left_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('right_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        
     return left_disparity, right_disparity, left_costvolume
 
 
-def SD_rgb(left_image, right_image, min_depth, max_depth):
+def SD_rgb(left_image, right_image, min_depth, max_depth, disparity_print):
 
     left_CV, right_CV =  cost_volume_rgb(left_image, right_image, min_depth, max_depth)
-    return disparity_map_rgb(left_CV, right_CV, min_depth, max_depth)
+    return disparity_map_rgb(left_CV, right_CV, min_depth, max_depth, disparity_print)
 
 def cost_volume_rgb(left_image, right_image, min_depth, max_depth):
 
@@ -80,7 +81,7 @@ def weighted_average(list, threshold=2):
                 result_costvolume[h,w] = int((list[0][h,w]+list[1][h,w]+list[2][h,w])/3)
     return result_costvolume
 
-def disparity_map_rgb(left_costvolume, right_costvolume, min_depth, max_depth):
+def disparity_map_rgb(left_costvolume, right_costvolume, min_depth, max_depth, disparity_print):
 
     left_disparity_list = []
     right_disparity_list = []
@@ -91,5 +92,15 @@ def disparity_map_rgb(left_costvolume, right_costvolume, min_depth, max_depth):
 
     left_disparity = weighted_average(left_disparity_list)
     right_disparity = weighted_average(right_disparity_list)
+
+    if disparity_print:
+        print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('left_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('right_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     return left_disparity,  right_disparity, left_costvolume

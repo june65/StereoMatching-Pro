@@ -24,7 +24,7 @@ def Bilateral_filter(image, filter_size):
 
     return total_weight / np.sum(total_weight)
 
-def Mid_filter(disparity, image, min_depth, max_depth, filter_size=3):
+def Mid_filter(disparity, image, min_depth, max_depth, filter_size, disparity_print):
     image = RGB_to_gray(image) 
 
     height, width = disparity.shape
@@ -47,6 +47,7 @@ def Mid_filter(disparity, image, min_depth, max_depth, filter_size=3):
                 binary_filter = padded_bin_disparity[h:h+filter_size, w:w+filter_size, d]
                 histogram[h, w, d] = np.sum(binary_filter * Bilateral_filter(padded_image[h:h+filter_size, w:w+filter_size], filter_size))
     '''
+    #Histogram Print
     for d in range(depth):
         print_img = histogram[:, :, d]
         cv2.imshow('histogram', print_img)
@@ -56,9 +57,10 @@ def Mid_filter(disparity, image, min_depth, max_depth, filter_size=3):
 
     aggregated_disparity = np.argmax(histogram, axis=2)
 
-    print_img = aggregated_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('aggregated_disparity',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()    
+    if disparity_print:
+        print_img = aggregated_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('aggregated_disparity',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()    
 
     return aggregated_disparity

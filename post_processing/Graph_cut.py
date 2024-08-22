@@ -9,7 +9,7 @@ def weight_function(cost1):
 def penalty_function(cost1, cost2, penalty_C):
     return (np.abs(cost1-cost2)**2) * penalty_C
 
-def Graph_cut(disparity, cost_volume, min_depth, max_depth):
+def Graph_cut(disparity, cost_volume, min_depth, max_depth, disparity_print):
     height, width, _ = cost_volume.shape
     penalty_C = 50
     cost_volume = cost_volume.astype(np.uint8)
@@ -53,30 +53,26 @@ def Graph_cut(disparity, cost_volume, min_depth, max_depth):
     g.maxflow()
 
     labels = np.zeros((height, width, max_depth), dtype=np.uint8)
-    flag_change = np.zeros((height, width), dtype=np.uint8)
-    flag_label = np.ones((height, width), dtype=np.uint8)
-    aggregated_disparity = np.zeros((height, width), dtype=np.float32)
-
+    aggregated_disparity = np.zeros((height, width))
     for d in range(min_depth, max_depth):
         for h in range(height):
             for w in range(width):
                 idx = (d-min_depth) * height * width + h * width + w
                 labels[h, w, d] = g.get_segment(nodes[idx])
-                if flag_change[h, w] == 0:
-                    if flag_label[h,w] != labels[h, w, d]:
-                        aggregated_disparity[h, w] = d
-                        flag_change[h, w] = 1
-        flag_label = labels[:,:,d]
+                if labels[h, w, d]:
+                    aggregated_disparity[h, w] = d
         '''
+        #Graph Node Value Print
         print_img = labels[:,:,d].astype(np.uint8) * int(255)
         cv2.imshow('labels',print_img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()            
         '''
-    print_img = aggregated_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('aggregated_disparity',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    
+
+    if disparity_print:
+        print_img = aggregated_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('aggregated_disparity',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
     
     return aggregated_disparity

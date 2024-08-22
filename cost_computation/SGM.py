@@ -3,14 +3,14 @@ import cv2
 from utils import RGB_to_gray, RGB_to_CIELab
 from tqdm import tqdm
     
-def SGM(left_image, right_image, depth):
+def SGM(left_image, right_image, depth, disparity_print):
 
     left_image = RGB_to_gray(left_image) 
     right_image = RGB_to_gray(right_image)
     
     left_CV, right_CV =  cost_volume(left_image, right_image, depth)
     aggregate_cost = aggregate_cost_volume(left_CV, right_CV)
-    return disparity_map(left_CV, right_CV, aggregate_cost, depth)
+    return disparity_map(left_CV, right_CV, aggregate_cost, depth, disparity_print)
 
 def cost_volume(left_image, right_image, depth):
 
@@ -63,15 +63,16 @@ def aggregate_cost_volume(left_costvolume, right_costvolume):
     return aggregated_volume
 
 
-def disparity_map(left_costvolume, right_costvolume, aggregated_volume, depth):
+def disparity_map(left_costvolume, right_costvolume, aggregated_volume, depth, disparity_print):
 
     aggregated_volume = np.argmin(aggregated_volume, axis=2)
     left_disparity = np.argmin(left_costvolume, axis=2)
     right_disparity = np.argmin(right_costvolume, axis=2)
 
-    print_img = aggregated_volume.astype(np.uint8) * int(255 / depth)
-    cv2.imshow('aggregated_volume',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if disparity_print:
+        print_img = aggregated_volume.astype(np.uint8) * int(255 / depth)
+        cv2.imshow('aggregated_volume',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
     return left_disparity, right_disparity

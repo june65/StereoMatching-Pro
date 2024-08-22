@@ -3,12 +3,12 @@ import cv2
 from utils import RGB_to_gray, RGB_to_CIELab
 from tqdm import tqdm
 
-def ASW(left_image, right_image, min_depth, max_depth, kernel_size=3, specular=False, graphcut=0):
+def ASW(left_image, right_image, min_depth, max_depth, kernel_size, specular, disparity_print):
 
     left_image_CIELab = RGB_to_CIELab(left_image) 
     right_image_CIELab = RGB_to_CIELab(right_image)  
-    left_CV, right_CV, left_specular_mask, right_specular_mask =  cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, specular, graphcut)
-    return disparity_map(left_CV, right_CV, left_image_CIELab, right_image_CIELab, min_depth, max_depth, kernel_size, specular, left_specular_mask, right_specular_mask)
+    left_CV, right_CV, left_specular_mask, right_specular_mask =  cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, specular)
+    return disparity_map(left_CV, right_CV, left_image_CIELab, right_image_CIELab, min_depth, max_depth, kernel_size, specular, left_specular_mask, right_specular_mask, disparity_print)
 
 def chromaticity(image,x,y,direction):
     Lamd = (image[y,x,:] - image[y+direction[0],x+direction[1],:]).astype(np.float64)
@@ -18,7 +18,7 @@ def chromaticity(image,x,y,direction):
     return Lamd
 
 #VERSION1
-def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, specular=False, graphcut=0):
+def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, specular):
 
     height, width, _ = left_image.shape
     left_specular_mask = np.zeros((height, width, 1)).astype(np.float64)
@@ -50,7 +50,9 @@ def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, spec
                         right_specular_masks[h-direction[1],w-direction[0]] += 1
 
         right_specular_mask[right_specular_masks >= 12] = 1
+
         '''
+        #Specular Mask Print
         print_img = right_specular_masks.astype(np.uint8) * int(255/24)
         cv2.imshow('specular_mask_sum',print_img)
         cv2.waitKey(0)
@@ -60,6 +62,7 @@ def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, spec
         cv2.waitKey(0)
         cv2.destroyAllWindows()
         '''
+
     left_image = RGB_to_gray(left_image) 
     right_image = RGB_to_gray(right_image)
     
@@ -73,13 +76,10 @@ def cost_volume(left_image, right_image, min_depth, max_depth, kernel_size, spec
             if w-d >=0:
                 right_costvolume[:,w,d] = np.abs(left_image[:,w-d] - right_image[:,w])
 
-    if graphcut == 1:
-        print('graphcut')
-
     return left_costvolume, right_costvolume, left_specular_mask, right_specular_mask
 
 
-def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_image_CIELab, min_depth, max_depth, kernel_size, specular=False, left_specular_mask=None, right_specular_mask=None):
+def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_image_CIELab, min_depth, max_depth, kernel_size, specular, left_specular_mask, right_specular_mask, disparity_print):
 
     height, width, _ = left_image_CIELab.shape
     pad_size = kernel_size // 2
@@ -133,16 +133,17 @@ def disparity_map(left_costvolume, right_costvolume, left_image_CIELab, right_im
 
     left_disparity = np.argmin(left_disparity_conv, axis=2)
     right_disparity = np.argmin(right_disparity_conv, axis=2)
-    '''
-    print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('right_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('left_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()    
-    '''
+    
+    if disparity_print:
+        print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('left_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('right_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
     return left_disparity, right_disparity, left_disparity_conv
 
 '''
@@ -193,25 +194,23 @@ def cost_volume(left_image, right_image, left_image_CIELab, right_image_CIELab, 
                             weight_cost_sum += cost_flag * weight_flag
                     right_costvolume[h,w,d] = weight_cost_sum / weight_sum
 
-    # left_costvolume = left_costvolume.mean(axis=2)
-    # right_costvolume = right_costvolume.mean(axis=2)
-
     return left_costvolume, right_costvolume
 
 
-def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, kernel_size):
+def disparity_map(left_costvolume, right_costvolume, min_depth, max_depth, kernel_size, disparity_print):
     
     left_disparity = np.argmin(left_costvolume, axis=2)
     right_disparity = np.argmin(right_costvolume, axis=2)
 
-    print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('right_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-    print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
-    cv2.imshow('left_disparity_map',print_img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()    
+    if disparity_print:
+        print_img = left_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('left_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+        print_img = right_disparity.astype(np.uint8) * int(255 / max_depth)
+        cv2.imshow('right_disparity_map',print_img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()  
 
     return left_disparity, right_disparity
 '''

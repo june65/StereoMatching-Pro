@@ -15,10 +15,11 @@ parser.add_argument('--rgbexpand', default=False, help='rgb expansion')
 parser.add_argument('--lrcheck', default=False, help='left right consistency check')
 parser.add_argument('--treefilter', default=False, help='tree filter')
 parser.add_argument('--midfilter', default=0, help='weighted median filter')
-parser.add_argument('--graphcut', default=0, help='graph cut algorithm (0:no graph cut)(1:before cost aggregation)(2:after cost aggregation)')
+parser.add_argument('--graphcut', default=False, help='graph cut algorithm (0:no graph cut)(1:before cost aggregation)(2:after cost aggregation)')
 #Accuracy calculation parameters
 parser.add_argument('--rmse', default=True, help='rmse accuracy')
 parser.add_argument('--badratio', default=True, help='bad pixel ratio')
+parser.add_argument('--print', default=True, help='print disparity result')
 
 args = parser.parse_args()
 
@@ -34,36 +35,37 @@ def main():
     mid_window_size = int(args.midfilter)
     right_image, GT_image = imageset[0]
     left_image, _ = imageset[1]
+    disparity_print = args.print
 
     #Cost computation
     if args.costmethod == 'AD':
         if not args.rgbexpand:
-            left_disparity, right_disparity, left_costvolume = AD(left_image, right_image, min_depth, max_depth)
+            left_disparity, right_disparity, left_costvolume = AD(left_image, right_image, min_depth, max_depth, disparity_print)
         else:
-            left_disparity, right_disparity, left_costvolume = AD_rgb(left_image, right_image, min_depth, max_depth)
+            left_disparity, right_disparity, left_costvolume = AD_rgb(left_image, right_image, min_depth, max_depth, disparity_print)
     if args.costmethod == 'SD':
         if not args.rgbexpand:
-            left_disparity, right_disparity, left_costvolume = SD(left_image, right_image, min_depth, max_depth)
+            left_disparity, right_disparity, left_costvolume = SD(left_image, right_image, min_depth, max_depth, disparity_print)
         else:
-            left_disparity, right_disparity, left_costvolume = SD_rgb(left_image, right_image, min_depth, max_depth)
+            left_disparity, right_disparity, left_costvolume = SD_rgb(left_image, right_image, min_depth, max_depth, disparity_print)
     if args.costmethod == 'SAD':    
-        left_disparity, right_disparity, left_costvolume = SAD(left_image, right_image, min_depth, max_depth, window_size)
-    if args.costmethod == 'SSD':    
-        left_disparity, right_disparity, left_costvolume = SSD(left_image, right_image, min_depth, max_depth, window_size)
+        left_disparity, right_disparity, left_costvolume = SAD(left_image, right_image, min_depth, max_depth, window_size, disparity_print)
+    if args.costmethod == 'SSD':
+        left_disparity, right_disparity, left_costvolume = SSD(left_image, right_image, min_depth, max_depth, window_size, disparity_print)
     if args.costmethod == 'ASW':    
-        left_disparity, right_disparity, left_costvolume = ASW(left_image, right_image, min_depth, max_depth, window_size, specular=False, graphcut=args.graphcut)
+        left_disparity, right_disparity, left_costvolume = ASW(left_image, right_image, min_depth, max_depth, window_size, False, disparity_print)
     if args.costmethod == 'SGM':    
-        left_disparity, right_disparity = SGM(left_image, right_image, max_depth)
+        left_disparity, right_disparity = SGM(left_image, right_image, max_depth, disparity_print)
 
     #Post processing
-    if int(args.graphcut) == 2:
-        left_disparity = Graph_cut(left_disparity ,left_costvolume, min_depth, max_depth)
+    if args.graphcut:
+        left_disparity = Graph_cut(left_disparity ,left_costvolume, min_depth, max_depth, disparity_print)
     if args.lrcheck:
-        left_disparity = LR_check(left_disparity, right_disparity, max_depth)
+        left_disparity = LR_check(left_disparity, right_disparity, max_depth, disparity_print)
     if args.treefilter:
-        left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, min_depth, max_depth, window_size, texture=True, LR_refine=args.lrcheck)
+        left_disparity = Tree_filter(left_image, left_disparity, left_costvolume, min_depth, max_depth, window_size, True, args.lrcheck, disparity_print)
     if mid_window_size > 0:
-        left_disparity = Mid_filter(left_disparity, left_image, min_depth, max_depth, mid_window_size)
+        left_disparity = Mid_filter(left_disparity, left_image, min_depth, max_depth, mid_window_size, disparity_print)
 
     #Accuracy calculation
     if args.rmse:
