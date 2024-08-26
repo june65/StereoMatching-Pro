@@ -1,11 +1,13 @@
-# **Stero Matching PRO** 
-![python](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white)
+# **Stero-Matching-PRO** ![python](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white)
+
+Dive into the world of computer vision with this comprehensive Python project that brings stereo matching to life. Designed for enthusiasts and professionals alike, this project leverages cutting-edge algorithms to generate precise depth maps from stereo image pairs. Whether you're exploring autonomous systems, 3D reconstruction, or just expanding your knowledge, this project offers a hands-on approach to mastering stereo vision.
 
 <div align="center">
 
 ![teaser](assets/teaser.png)
 
 </div>
+
 
 ## **Table of Contents** 
 - [**Environment setup**](#environment-setup)
@@ -28,7 +30,10 @@ Middlebury Computer Vision Pages provide datasets and benchmarks for computer vi
 
 ## **Running**
 
+We demonstrate the precision of our stereo matching algorithms using the benchmark Tsukuba dataset.
+
 ### Ground Truth
+
 <div style="display: flex; justify-content: center;">
     <img src="assets/Ground_Truth.png" alt="Image 1" style="height: 200px;"/>
 </div>
