@@ -1,4 +1,4 @@
-# **Stero-Matching-PRO** ![python](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white)
+# **Stereo Matching PRO** ![python](https://img.shields.io/badge/Python-14354C?style=for-the-badge&logo=python&logoColor=white)
 
 Dive into the world of computer vision with this comprehensive Python project that brings stereo matching to life. Designed for enthusiasts and professionals alike, this project leverages cutting-edge algorithms to generate precise depth maps from stereo image pairs. Whether you're exploring autonomous systems, 3D reconstruction, or just expanding your knowledge, this project offers a hands-on approach to mastering stereo vision.
 
